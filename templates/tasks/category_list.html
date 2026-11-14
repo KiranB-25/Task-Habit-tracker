@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories - FocusTrack{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Category Creation Form -->
+    <div class="col-12 col-md-5">
+        <div class="card card-custom">
+            <div class="card-header">Create New Category</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Category Name</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Accent Color</label>
+                        {{ form.color }}
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-plus-lg me-1"></i> Add Category
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category List -->
+    <div class="col-12 col-md-7">
+        <div class="card card-custom">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Existing Categories</span>
+                <span class="badge bg-secondary-subtle text-secondary">{{ categories.count }} total</span>
+            </div>
+            <div class="card-body p-0">
+                {% if categories %}
+                    <div class="list-group list-group-flush">
+                        {% for cat in categories %}
+                            <div class="list-group-item d-flex align-items-center justify-content-between py-3 px-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="rounded-circle d-inline-block" style="width: 14px; height: 14px; background-color: {{ cat.color }};"></span>
+                                    <span class="fw-medium">{{ cat.name }}</span>
+                                    <span class="badge bg-light text-muted border ms-2 small">{{ cat.tasks.count }} tasks</span>
+                                </div>
+
+                                {% if cat.user %}
+                                    <form method="post" action="{% url 'tasks:category_delete' cat.id %}" onsubmit="return confirm('Delete this category? Tasks using it will remain uncategorized.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state py-4">
+                        <i class="bi bi-tags"></i>
+                        <p class="small text-muted mb-0">No categories created yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

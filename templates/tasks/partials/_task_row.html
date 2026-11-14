@@ -1,0 +1,71 @@
+<div class="task-item {% if task.is_completed %}completed{% endif %}" id="task-row-{{ task.id }}">
+    <!-- Interactive HTMX Checkbox -->
+    <input type="checkbox" 
+           class="form-check-input task-checkbox me-2" 
+           {% if task.is_completed %}checked{% endif %}
+           hx-post="{% url 'tasks:toggle_complete' task.id %}"
+           hx-target="#task-row-{{ task.id }}"
+           hx-swap="outerHTML"
+           title="Mark task completed/pending">
+
+    <div class="flex-grow-1 min-w-0">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="task-title fw-medium {% if task.is_completed %}text-decoration-line-through text-muted{% endif %}">
+                {{ task.title }}
+            </span>
+
+            <!-- Category Pill -->
+            {% if task.category %}
+                <span class="badge rounded-pill" style="background-color: {{ task.category.color }}15; color: {{ task.category.color }}; border: 1px solid {{ task.category.color }}40; font-size: 0.75rem;">
+                    {{ task.category.name }}
+                </span>
+            {% endif %}
+
+            <!-- Priority Badge -->
+            <span class="badge {{ task.priority_badge_class }}" style="font-size: 0.725rem;">
+                {{ task.get_priority_display }}
+            </span>
+        </div>
+
+        {% if task.description %}
+            <p class="small text-muted mb-0 mt-1 text-truncate" style="max-width: 600px;">
+                {{ task.description }}
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Due Date & Status -->
+    <div class="d-flex align-items-center gap-3 ms-auto">
+        {% if task.due_date %}
+            <div class="small d-flex align-items-center gap-1 {% if task.is_overdue %}text-danger fw-semibold{% elif task.is_due_today %}text-warning fw-semibold{% else %}text-muted{% endif %}">
+                <i class="bi bi-calendar3"></i>
+                <span>{{ task.due_date|date:"M d" }}</span>
+                {% if task.is_overdue %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 0.65rem;">Overdue</span>
+                {% elif task.is_due_today %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 0.65rem;">Today</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-light border-0 py-0 px-2 text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <li>
+                    <a class="dropdown-item py-1 small" href="{% url 'tasks:update' task.id %}">
+                        <i class="bi bi-pencil me-2 text-secondary"></i> Edit
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <a class="dropdown-item py-1 small text-danger" href="{% url 'tasks:delete' task.id %}">
+                        <i class="bi bi-trash3 me-2"></i> Delete
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

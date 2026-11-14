@@ -1,0 +1,56 @@
+<div id="task-list-content">
+    <!-- Filter Tabs -->
+    <div class="d-flex align-items-center gap-2 mb-3 overflow-auto pb-1">
+        <a href="?status=all{% if priority %}&priority={{ priority }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="btn btn-sm {% if status == 'all' or not status %}btn-primary-custom{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+            All ({{ total_count }})
+        </a>
+        <a href="?status=pending{% if priority %}&priority={{ priority }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="btn btn-sm {% if status == 'pending' %}btn-primary-custom{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+            Pending ({{ pending_count }})
+        </a>
+        <a href="?status=completed{% if priority %}&priority={{ priority }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="btn btn-sm {% if status == 'completed' %}btn-primary-custom{% else %}btn-outline-secondary{% endif %} rounded-pill px-3">
+            Completed ({{ completed_count }})
+        </a>
+        {% if overdue_count > 0 %}
+        <a href="?status=overdue{% if priority %}&priority={{ priority }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if q %}&q={{ q }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" 
+           class="btn btn-sm {% if status == 'overdue' %}btn-danger text-white{% else %}btn-outline-danger{% endif %} rounded-pill px-3">
+            Overdue ({{ overdue_count }})
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Task List Rows -->
+    {% if tasks %}
+        <div class="task-list-container">
+            {% for task in tasks %}
+                {% include 'tasks/partials/_task_row.html' with task=task today=today %}
+            {% endfor %}
+        </div>
+
+        {% include 'components/_pagination.html' %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="card card-custom">
+            <div class="card-body empty-state">
+                <i class="bi bi-clipboard2-check"></i>
+                <h5 class="fw-semibold">No tasks found</h5>
+                <p class="small text-muted mb-3">
+                    {% if q or status != 'all' or priority or category_id %}
+                        Try adjusting your search filters or clear the active query.
+                    {% else %}
+                        You don't have any tasks scheduled. Create your first task to stay organized!
+                    {% endif %}
+                </p>
+                {% if q or status != 'all' or priority or category_id %}
+                    <a href="{% url 'tasks:list' %}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+                {% else %}
+                    <a href="{% url 'tasks:create' %}" class="btn btn-sm btn-primary-custom">
+                        <i class="bi bi-plus-lg me-1"></i> Add Task
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>

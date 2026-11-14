@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - FocusTrack{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="card card-custom mb-4 overflow-hidden" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%);">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-2">
+                    <i class="bi bi-calendar-event me-1"></i> {{ today|date:"l, F j, Y" }}
+                </span>
+                <h2 class="h3 fw-bold mb-1">
+                    Welcome back, {{ request.user.first_name|default:request.user.username }}!
+                </h2>
+                <p class="text-muted small mb-0">
+                    Stay focused and build consistent habits. Here is your daily productivity pulse.
+                </p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'tasks:create' %}" class="btn btn-sm btn-primary-custom shadow-sm">
+                    <i class="bi bi-plus-lg me-1"></i> Add Task
+                </a>
+                <a href="{% url 'habits:create' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-repeat me-1"></i> Add Habit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overdue Tasks Banner (Conditional) -->
+{% if overdue_tasks > 0 %}
+<div class="alert alert-danger d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger"></i>
+        <div>
+            <strong>Attention:</strong> You have <strong>{{ overdue_tasks }}</strong> overdue task{% if overdue_tasks > 1 %}s{% endif %}.
+        </div>
+    </div>
+    <a href="{% url 'tasks:list' %}?status=overdue" class="btn btn-sm btn-danger px-3">
+        View Overdue Tasks
+    </a>
+</div>
+{% endif %}
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div>
+                <div class="text-muted small fw-medium">Today's Tasks</div>
+                <div class="fs-4 fw-bold mt-1">{{ today_completed_count }} / {{ today_all_count }}</div>
+                <div class="small text-muted mt-1">{{ today_task_rate }}% done</div>
+            </div>
+            <div class="stat-icon bg-primary-subtle text-primary">
+                <i class="bi bi-check2-square"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div>
+                <div class="text-muted small fw-medium">Pending Tasks</div>
+                <div class="fs-4 fw-bold mt-1 text-warning">{{ pending_tasks }}</div>
+                <div class="small text-muted mt-1">{{ completed_tasks }} completed</div>
+            </div>
+            <div class="stat-icon bg-warning-subtle text-warning">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div>
+                <div class="text-muted small fw-medium">Today's Habits</div>
+                <div class="fs-4 fw-bold mt-1 text-success">{{ completed_habits_today }} / {{ total_habits }}</div>
+                <div class="small text-muted mt-1">{{ habit_today_rate }}% logged</div>
+            </div>
+            <div class="stat-icon bg-success-subtle text-success">
+                <i class="bi bi-repeat"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div>
+                <div class="text-muted small fw-medium">Best Streak</div>
+                <div class="fs-4 fw-bold mt-1 text-danger">{{ max_streak }} <span class="fs-6 fw-normal text-muted">days</span></div>
+                <div class="small text-muted mt-1">Keep the momentum</div>
+            </div>
+            <div class="stat-icon bg-danger-subtle text-danger">
+                <i class="bi bi-fire"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Two-Column Main Content -->
+<div class="row g-4">
+    <!-- Left Column: Today's Action Center & Habits -->
+    <div class="col-12 col-lg-7">
+        <!-- Today's Tasks -->
+        <div class="card card-custom mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Today's Tasks & Urgent Deadlines</span>
+                <a href="{% url 'tasks:list' %}?status=pending" class="btn btn-sm btn-link text-decoration-none p-0 small">
+                    View all ({{ pending_tasks }}) &rarr;
+                </a>
+            </div>
+            <div class="card-body">
+                {% if today_tasks %}
+                    <div class="task-list-container">
+                        {% for task in today_tasks %}
+                            {% include 'tasks/partials/_task_row.html' with task=task today=today %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-check-circle fs-3 text-success d-block mb-2"></i>
+                        <p class="small mb-0">No pending tasks for today. Great job!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Today's Habits Check-In -->
+        <div class="card card-custom">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Daily Habits Check-In</span>
+                <a href="{% url 'habits:list' %}" class="btn btn-sm btn-link text-decoration-none p-0 small">
+                    All habits &rarr;
+                </a>
+            </div>
+            <div class="card-body">
+                {% if habits_summary %}
+                    <div class="list-group list-group-flush">
+                        {% for item in habits_summary %}
+                            <div class="list-group-item d-flex align-items-center justify-content-between py-3 px-2 border-bottom" style="border-color: var(--border-subtle) !important;" id="dash-habit-{{ item.habit.id }}">
+                                <div class="d-flex align-items-center gap-3">
+                                    <button type="button"
+                                            class="habit-day-bubble {% if item.stats.today_completed %}done{% endif %}"
+                                            hx-post="{% url 'habits:toggle_log' item.habit.id %}?date={{ today|date:'Y-m-d' }}"
+                                            hx-target="#dash-habit-{{ item.habit.id }}"
+                                            hx-swap="outerHTML"
+                                            title="Click to toggle today's completion">
+                                        {% if item.stats.today_completed %}
+                                            <i class="bi bi-check-lg"></i>
+                                        {% else %}
+                                            <i class="bi bi-circle"></i>
+                                        {% endif %}
+                                    </button>
+                                    <div>
+                                        <div class="fw-semibold">{{ item.habit.name }}</div>
+                                        <div class="small text-muted d-flex align-items-center gap-2">
+                                            <span>{{ item.stats.current_streak }} day streak</span>
+                                            <span>&middot;</span>
+                                            <span>{{ item.stats.rate_7 }}% this week</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <span class="badge rounded-pill" style="background-color: {{ item.habit.color }}15; color: {{ item.habit.color }}; border: 1px solid {{ item.habit.color }}40;">
+                                    {{ item.habit.get_frequency_display }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-repeat fs-3 d-block mb-2"></i>
+                        <p class="small mb-2">No active habits yet.</p>
+                        <a href="{% url 'habits:create' %}" class="btn btn-sm btn-primary-custom">Create Habit</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Upcoming Tasks & Weekly Pulse -->
+    <div class="col-12 col-lg-5">
+        <!-- Upcoming Tasks -->
+        <div class="card card-custom mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Upcoming This Week</span>
+                <i class="bi bi-calendar-week text-muted"></i>
+            </div>
+            <div class="card-body">
+                {% if upcoming_tasks %}
+                    <div class="list-group list-group-flush">
+                        {% for task in upcoming_tasks %}
+                            <div class="list-group-item d-flex align-items-center justify-content-between py-2 px-0 border-bottom" style="border-color: var(--border-subtle) !important;">
+                                <div class="text-truncate me-2">
+                                    <div class="fw-medium text-truncate small">{{ task.title }}</div>
+                                    <div class="small text-muted">{{ task.due_date|date:"D, M d" }}</div>
+                                </div>
+                                <span class="badge {{ task.priority_badge_class }}" style="font-size: 0.7rem;">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <p class="small mb-0">No upcoming tasks scheduled this week.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Weekly Productivity Pulse -->
+        <div class="card card-custom mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Productivity Pulse</span>
+                <a href="{% url 'dashboard:analytics' %}" class="btn btn-sm btn-link text-decoration-none p-0 small">
+                    Full Analytics &rarr;
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="small text-muted">Completed Tasks This Week:</span>
+                    <span class="fs-5 fw-bold text-success">{{ completed_this_week }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="small text-muted">Total Active Tasks:</span>
+                    <span class="fw-semibold">{{ total_tasks }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="small text-muted">Active Habits Tracked:</span>
+                    <span class="fw-semibold">{{ total_habits }}</span>
+                </div>
+
+                <div class="mt-4 pt-3 border-top" style="border-color: var(--border-subtle) !important;">
+                    <a href="{% url 'dashboard:analytics' %}" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="bi bi-graph-up-arrow me-1"></i> View Interactive Charts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

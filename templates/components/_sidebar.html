@@ -1,0 +1,60 @@
+<aside class="app-sidebar">
+    <a href="{% url 'dashboard:index' %}" class="sidebar-brand">
+        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-2" style="width: 32px; height: 32px;">
+            <i class="bi bi-check2-circle fs-5"></i>
+        </span>
+        <span class="fw-bold tracking-tight">FocusTrack</span>
+    </a>
+
+    <nav class="sidebar-nav">
+        <a href="{% url 'dashboard:index' %}" class="nav-link-custom {% if request.resolver_match.app_name == 'dashboard' and request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <i class="bi bi-grid-1x2"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{% url 'tasks:list' %}" class="nav-link-custom {% if request.resolver_match.app_name == 'tasks' and request.resolver_match.url_name != 'categories' %}active{% endif %}">
+            <i class="bi bi-check2-square"></i>
+            <span>My Tasks</span>
+        </a>
+
+        <a href="{% url 'habits:list' %}" class="nav-link-custom {% if request.resolver_match.app_name == 'habits' %}active{% endif %}">
+            <i class="bi bi-repeat"></i>
+            <span>My Habits</span>
+        </a>
+
+        <a href="{% url 'dashboard:analytics' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span>Analytics</span>
+        </a>
+
+        <a href="{% url 'tasks:categories' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'categories' %}active{% endif %}">
+            <i class="bi bi-tags"></i>
+            <span>Categories</span>
+        </a>
+
+        <div class="my-3 border-top" style="border-color: var(--border-subtle) !important;"></div>
+
+        <a href="{% url 'accounts:profile' %}" class="nav-link-custom {% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="bi bi-person-gear"></i>
+            <span>Settings & Profile</span>
+        </a>
+    </nav>
+
+    <!-- Sidebar Bottom User Profile Card -->
+    <div class="p-3 border-top" style="border-color: var(--border-subtle) !important;">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <div class="avatar-badge flex-shrink-0">
+                    {{ user_profile.initials|default:request.user.username|slice:":2"|upper }}
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-semibold small text-truncate">{{ request.user.get_full_name|default:request.user.username }}</div>
+                    <div class="text-muted text-truncate" style="font-size: 0.75rem;">{{ request.user.email|default:"Active User" }}</div>
+                </div>
+            </div>
+            <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-danger p-1 px-2" title="Sign Out">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</aside>

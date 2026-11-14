@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analytics & Productivity - FocusTrack{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <h2 class="h4 fw-bold mb-1">Productivity & Habit Analytics</h2>
+        <p class="text-muted small mb-0">Actionable insights into your task completion and habit consistency</p>
+    </div>
+
+    <div>
+        <a href="{% url 'dashboard:index' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="row g-4 mb-4">
+    <!-- 7-Day Productivity Trend Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="card card-custom h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Task Productivity (Past 7 Days)</span>
+                <span class="badge bg-secondary-subtle text-secondary small">Daily Completed vs Created</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Priority Distribution Chart -->
+    <div class="col-12 col-lg-4">
+        <div class="card card-custom h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Tasks by Priority</span>
+                <span class="badge bg-secondary-subtle text-secondary small">{{ total_tasks }} total</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Habit Consistency Section -->
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="card card-custom h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Habit Consistency Rates (Last 30 Days)</span>
+                <span class="badge bg-success-subtle text-success small">Target: &ge; 80%</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 260px; position: relative;">
+                    <canvas id="habitChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card card-custom h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Habit Streaks Breakdown</span>
+                <a href="{% url 'habits:list' %}" class="btn btn-sm btn-link text-decoration-none p-0 small">
+                    Manage &rarr;
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if habits_data %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead>
+                                <tr class="text-muted">
+                                    <th class="ps-3">Habit</th>
+                                    <th>Current</th>
+                                    <th>Longest</th>
+                                    <th>7-Day</th>
+                                    <th class="pe-3">30-Day</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in habits_data %}
+                                    <tr>
+                                        <td class="ps-3 fw-semibold">
+                                            <span class="rounded-circle d-inline-block me-1" style="width: 8px; height: 8px; background-color: {{ item.habit.color }};"></span>
+                                            {{ item.habit.name }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                                <i class="bi bi-fire me-1"></i>{{ item.stats.current_streak }}d
+                                            </span>
+                                        </td>
+                                        <td>{{ item.stats.longest_streak }} days</td>
+                                        <td>
+                                            <span class="fw-medium">{{ item.stats.rate_7 }}%</span>
+                                        </td>
+                                        <td class="pe-3">
+                                            <span class="fw-medium">{{ item.stats.rate_30 }}%</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <p class="small mb-0">No habit streak data available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/analytics.js' %}"></script>
+{% endblock %}

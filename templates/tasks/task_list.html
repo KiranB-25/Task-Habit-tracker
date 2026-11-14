@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks - FocusTrack{% endblock %}
+{% block page_title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <h2 class="h4 fw-bold mb-1">My Tasks</h2>
+        <p class="text-muted small mb-0">Organize, prioritize, and track your daily commitments</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'tasks:categories' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-tag me-1"></i> Categories
+        </a>
+        <a href="{% url 'tasks:create' %}" class="btn btn-sm btn-primary-custom">
+            <i class="bi bi-plus-lg me-1"></i> New Task
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="card card-custom mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <!-- Hidden status preserver -->
+            <input type="hidden" name="status" value="{{ status }}">
+
+            <!-- Search Field with live HTMX -->
+            <div class="col-12 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search" 
+                           name="q" 
+                           value="{{ q }}" 
+                           class="form-control border-start-0" 
+                           placeholder="Search tasks..."
+                           hx-get="{% url 'tasks:list' %}"
+                           hx-trigger="keyup changed delay:350ms, search"
+                           hx-target="#task-list-container"
+                           hx-include="[name='status'], [name='priority'], [name='category'], [name='sort']">
+                </div>
+            </div>
+
+            <!-- Priority Filter -->
+            <div class="col-6 col-md-2">
+                <select name="priority" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Priorities</option>
+                    <option value="low" {% if priority == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if priority == 'high' %}selected{% endif %}>High</option>
+                    <option value="urgent" {% if priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                </select>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-6 col-md-3">
+                <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="col-12 col-md-3">
+                <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="default" {% if sort == 'default' %}selected{% endif %}>Sort: Default (Status/Due)</option>
+                    <option value="due_asc" {% if sort == 'due_asc' %}selected{% endif %}>Due Date (Earliest first)</option>
+                    <option value="due_desc" {% if sort == 'due_desc' %}selected{% endif %}>Due Date (Latest first)</option>
+                    <option value="priority" {% if sort == 'priority' %}selected{% endif %}>Priority</option>
+                    <option value="created_desc" {% if sort == 'created_desc' %}selected{% endif %}>Newest Created</option>
+                    <option value="title" {% if sort == 'title' %}selected{% endif %}>Alphabetical (A-Z)</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Task List Container (Replaced dynamically by HTMX) -->
+<div id="task-list-container">
+    {% include 'tasks/partials/_task_list_content.html' %}
+</div>
+{% endblock %}

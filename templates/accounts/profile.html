@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile & Preferences - FocusTrack{% endblock %}
+{% block page_title %}Profile & Preferences{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card card-custom mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <span>Account Information</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    Member since {{ request.user.date_joined|date:"M Y" }}
+                </span>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">First Name</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Last Name</label>
+                            {{ user_form.last_name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Email Address</label>
+                        {{ user_form.email }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Bio / Goals</label>
+                        {{ profile_form.bio }}
+                        <div class="form-text small">Brief summary of your personal or professional focus.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Default Theme Preference</label>
+                        {{ profile_form.theme }}
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-color: var(--border-subtle) !important;">
+                        <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-shield-lock me-1"></i> Change Password
+                        </a>
+                        <button type="submit" class="btn btn-primary-custom">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
