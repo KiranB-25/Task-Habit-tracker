@@ -1,5 +1,11 @@
 # Task & Habit Tracker (FocusTrack)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://task-habit-tracker-tau.vercel.app)
+[![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django)](https://www.djangoproject.com/)
+[![Database](https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+
+> 🚀 **Live Production Deployment**: [https://task-habit-tracker-tau.vercel.app](https://task-habit-tracker-tau.vercel.app)
+
 A clean, lightweight, secure, and production-quality Django web application for task management, habit tracking, and personal productivity analytics.
 
 Built with Python 3.12 and Django 4.2, following modular architecture and modern UI/UX principles.
@@ -126,3 +132,15 @@ Run the automated tests:
 python manage.py test
 ```
 All 17 automated tests pass with 0 failures and 0 errors.
+
+---
+
+## Deployment (Vercel & Neon PostgreSQL)
+
+The application is deployed on Vercel with a Neon serverless PostgreSQL database:
+
+- **Live URL**: [https://task-habit-tracker-tau.vercel.app](https://task-habit-tracker-tau.vercel.app)
+- **WSGI Entry Point**: `api/index.py`
+- **Configuration**: `vercel.json`
+- **Static Asset Serving**: WhiteNoise (`whitenoise.middleware.WhiteNoiseMiddleware`)
+
